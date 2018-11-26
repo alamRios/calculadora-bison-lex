@@ -1,67 +1,121 @@
 %{
-	#include <stdio.h>
-	#include <stdlib.h>
-
-	char* concat(char* str1, char* str2);
-	int len(char* str);
+#include <stdio.h>
+#include <stdlib.h>
+char* concatenarStr(char* cad1, char* cad2, int tam);
+char* voltearStr(char* cadena, int tam);
+int cadlen(char* cad);
 %}
 
 %union{
-	int entero; 
-	double decimal;
-	char* cadena;
+	int entero;
+    double decimal;
+    char* cadena;
 }
+%token <entero> TOK_ENTERO
+%token <decimal> TOK_DECIMAL
+%token <cadena> TOK_CADENA
+%token TOK_SUMA
+%token TOK_RESTA
+%token TOK_MULTI
+%token TOK_DIV
+%token TOK_LF
 
-%token <entero> ENTERO; 
-%token <decimal> DECIMAL; 
-%token <cadena> CADENA;
+%left TOK_SUMA TOK_RESTA
+%left TOK_MULTI TOK_DIV
 
-%left "+" "-"
-%left "*" "/"
+%type <entero> expE
+%type <decimal> expD
+%type <cadena> concatenacion
 
-%type <entero> enteros
-%type <decimal> decimales
-%type <cadena> cadenas
 
 %%
-input: 
-	| input line
-	;
-line: "\n"
-	| enteros "\n" { printf("\tResultado: %d\n",$1); }
-	| decimales "\n" { printf("\tResultado: %f\n",$1); }
-	| cadenas "\n" { printf("\tResultado: %s\n",$1); }
-	;
-enteros: ENTERO { $$ = $1; }
-	| "-" ENTERO { $$ = -$2; }
-	| enteros "+" enteros { $$ = $1 + $3; }
-	| enteros "-" enteros { $$ = $1 - $3; }
-	| enteros "*" enteros { $$ = $1 * $3; }
-	| enteros "/" enteros { $$ = $1 / $3; }
-	;
-decimales: DECIMAL { $$ = $1; }
-	| "-" DECIMAL { $$ = -$2; }
-	| decimales "+" decimales { $$ = $1 + $3; }
-	| decimales "-" decimales { $$ = $1 - $3; }
-	| decimales "*" decimales { $$ = $1 * $3; }
-	| decimales "/" decimales { $$ = $1 / $3; }
-	
-	| enteros "+" decimales { $$ = $1 + $3; }
-	| enteros "-" decimales { $$ = $1 - $3; }
-	| enteros "*" decimales { $$ = $1 * $3; }
-	| enteros "/" decimales { $$ = $1 / $3; }
+input:
+    | input line
+    ;
 
-	| decimales "+" enteros { $$ = $1 + $3; }
-	| decimales "-" enteros { $$ = $1 - $3; }
-	| decimales "*" enteros { $$ = $1 * $3; }
-	| decimales "/" enteros { $$ = $1 / $3; }
-	;
-cadenas: CADENA { $$ = $1; }
-	| cadenas "+" cadenas {
-		char* aux = concat($1,$3);
-		$$ = aux;
-		}
-	;
+line: TOK_LF
+    | expE TOK_LF { printf("\tResultado: %d\n", $1); }
+    | expD TOK_LF { printf("\tResultado: %f\n", $1); }
+    | concatenacion TOK_LF { printf("\tResultado: %s\n", $1); }
+    ;
+
+expE: TOK_ENTERO { $$ = $1; }
+    | TOK_RESTA expE { $$ = -$2; }
+    | expE TOK_SUMA expE { $$ = $1 + $3; }
+    | expE TOK_RESTA expE { $$ = $1 - $3; }
+    | expE TOK_MULTI expE { $$ = $1 * $3; }
+    | expE TOK_DIV expE { $$ = $1 / $3; }
+    ;
+
+concatenacion: TOK_CADENA { $$ = $1; }
+    | TOK_RESTA concatenacion {
+        char* cad = voltearStr($2, cadlen($2));
+        $$ = cad;
+    }
+    | concatenacion TOK_SUMA concatenacion {
+        int nuevaLen = cadlen($1)+cadlen($3) - 1;
+        char* cad = concatenarStr($1, $3, nuevaLen);
+        $$ = cad;
+    }
+    | concatenacion TOK_SUMA expE {
+        char numcad[21];
+        sprintf(numcad, "%d", $3);
+        int nuevaLen = cadlen($1)+cadlen(numcad) - 1;
+        char* cad = concatenarStr($1, numcad, nuevaLen);
+        $$ = cad;
+    }
+    | expE TOK_SUMA concatenacion {
+        char numcad[21];
+        sprintf(numcad, "%d", $1);
+        int nuevaLen = cadlen($3)+cadlen(numcad) - 1;
+        char* cad = concatenarStr(numcad, $3, nuevaLen);
+        $$ = cad;
+    }
+    | expE TOK_MULTI concatenacion {
+        int nuevaLen = cadlen($3)*$1 + 1;
+        char* original = $3;
+        char* cad = "";
+        int i = 0;
+        do{
+            cad = concatenarStr(cad, original, nuevaLen);
+            ++i;
+        }
+        while(i < $1);
+
+        $$ = cad;
+    }
+    | concatenacion TOK_MULTI expE {
+        int nuevaLen = cadlen($1)*$3 + 1;
+        char* original = $1;
+        char* cad = "";
+        int i = 0;
+        do{
+            cad = concatenarStr(cad, original, nuevaLen);
+            ++i;
+        }
+        while(i < $3);
+
+        $$ = cad;
+    }
+    ;
+
+expD: TOK_DECIMAL { $$ = $1; }
+    | TOK_RESTA expD { $$ = -$2; }
+    | expD TOK_SUMA expD { $$ = $1 + $3; }
+    | expD TOK_RESTA expD { $$ = $1 - $3; }
+    | expD TOK_MULTI expD { $$ = $1 * $3; }
+    | expD TOK_DIV expD { $$ = $1 / $3; }
+
+    | expE TOK_SUMA expD { $$ = $1 + $3; }
+    | expE TOK_RESTA expD { $$ = $1 - $3; }
+    | expE TOK_MULTI expD { $$ = $1 * $3; }
+    | expE TOK_DIV expD { $$ = $1 / $3; }
+
+    | expD TOK_SUMA expE { $$ = $1 + $3; }
+    | expD TOK_RESTA expE { $$ = $1 - $3; }
+    | expD TOK_MULTI expE { $$ = $1 * $3; }
+    | expD TOK_DIV expE { $$ = $1 / $3; }
+    ;
 
 %%
 int main(int argc, char **argv){
@@ -69,33 +123,54 @@ int main(int argc, char **argv){
 	return 0;
 }
 
-int yywrap(){
+int yywrap() {
 	return 1;
 }
 
-void yyerror(const char* s){
+void yyerror(const char *s){
 	printf("Error: %s\n", s);
 }
 
-char* concat(char* str1, char* str2){
-	int i=0, j=0;
-	char* res = malloc(len(str1)+len(str2)+1);
-	while(str1[i]){
-		res[j++] = str1[i++];
-	}
-	
-	i = 0;
-	while(str2[i]){
-		res[j++] = str2[i++];
-	}
-	res[j] = '\0';
-	
-	return res;
+int cadlen(char* cad){
+    int i = 0;
+    int len = 0;
+    while(cad[i]){
+        len++;
+        i++;
+    }
+
+    return len;
 }
 
-int len(char* str){
-	int i = 0; 
-	while(str[i]){ i++; }
-	return i;
+char* concatenarStr(char* cad1, char* cad2, int tam){
+    int i = 0, j = 0;
+    char* concatenada = malloc(tam);
+
+    while(cad1[i]){
+        concatenada[j] = cad1[i];
+        j++;
+        i++;
+    }
+
+    i = 0;
+    while(cad2[i]){
+        concatenada[j] = cad2[i];
+        j++;
+        i++;
+    }
+
+    concatenada[j] = '\0';   
+
+    return concatenada;
 }
 
+char* voltearStr(char* cadena, int tam){
+    char* volteada = malloc(tam);
+
+    int i, j;
+    for(i = tam - 1, j = 0; i >= 0; i--, j++){
+        volteada[j] = cadena[i];
+    }
+
+    return volteada;
+}
