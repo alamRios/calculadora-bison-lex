@@ -45,9 +45,15 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    ENTERO = 258,
-    DECIMAL = 259,
-    CADENA = 260
+    TK_ENTERO = 258,
+    TK_DECIMAL = 259,
+    TK_CADENA = 260,
+    OP_SUMA = 261,
+    OP_RESTA = 262,
+    OP_MULTI = 263,
+    OP_DIV = 264,
+    TK_LF = 265,
+    OP_POT = 266
   };
 #endif
 
@@ -58,11 +64,11 @@ union YYSTYPE
 {
 #line 9 "a.y" /* yacc.c:1909  */
 
-	int entero; 
-	double decimal;
-	char* cadena;
+	int entero;
+    double decimal;
+    char* cadena;
 
-#line 66 "a.tab.h" /* yacc.c:1909  */
+#line 72 "a.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
