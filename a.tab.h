@@ -53,7 +53,13 @@ extern int yydebug;
     OP_MULTI = 263,
     OP_DIV = 264,
     TK_LF = 265,
-    OP_POT = 266
+    OP_POT = 266,
+    TK_VARIABLE = 267,
+    OP_ASIGNA = 268,
+    TK_T_ENT = 269,
+    TK_T_DB = 270,
+    TK_T_STR = 271,
+    TK_END_E = 272
   };
 #endif
 
@@ -62,13 +68,20 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 9 "a.y" /* yacc.c:1909  */
+#line 13 "a.y" /* yacc.c:1909  */
 
 	int entero;
-    double decimal;
-    char* cadena;
+	double decimal;
+	char* cadena;
+	union {
+	   int entero;
+	   double db;
+	   char* cadena;
+	   char* nombre;
+	   char* tipo; 
+	} variable;
 
-#line 72 "a.tab.h" /* yacc.c:1909  */
+#line 85 "a.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
