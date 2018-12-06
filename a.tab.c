@@ -70,12 +70,13 @@
 char* concat(char* cad1, char* cad2, int tam);
 char* voltear(char* cadena, int tam);
 int arrtam(char* cad);
-void imprimirTablaSimbolos();
 
 struct variable* tabla_simbolos;
 int tam_tabla;
 
-#line 79 "a.tab.c" /* yacc.c:339  */
+void imprimirTablaSimbolos();
+
+#line 80 "a.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -133,14 +134,20 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 24 "a.y" /* yacc.c:355  */
+#line 15 "a.y" /* yacc.c:355  */
 
 	int entero;
 	double decimal;
 	char* cadena;
-    variab variable;
+	struct variable{
+	   int entero;
+	   double db;
+	   char* cadena;
+	   char* nombre;
+	   char* tipo; 
+	} variable;
 
-#line 144 "a.tab.c" /* yacc.c:355  */
+#line 151 "a.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -157,19 +164,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 161 "a.tab.c" /* yacc.c:358  */
-/* Unqualified %code blocks.  */
-#line 14 "a.y" /* yacc.c:359  */
-
-    typedef struct variab {
-	   int entero;
-	   double db;
-	   char* cadena;
-	   char* nombre;
-	   char* tipo; 
-	} variable;
-
-#line 173 "a.tab.c" /* yacc.c:359  */
+#line 168 "a.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -468,10 +463,10 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    57,    57,    58,    61,    62,    63,    64,    65,    77,
-      78,    79,    80,    81,    82,    85,    86,    91,   120,   121,
-     122,   123,   124,   125,   127,   128,   129,   130,   132,   133,
-     134,   135,   138,   139
+       0,    54,    54,    55,    58,    59,    60,    61,    62,    75,
+      76,    77,    78,    79,    80,    83,    84,    89,   118,   119,
+     120,   121,   122,   123,   125,   126,   127,   128,   130,   131,
+     132,   133,   136,   137
 };
 #endif
 
@@ -1274,92 +1269,93 @@ yyreduce:
   switch (yyn)
     {
         case 5:
-#line 62 "a.y" /* yacc.c:1646  */
+#line 59 "a.y" /* yacc.c:1646  */
     { printf("\tResultado: %d\n", (yyvsp[-1].entero)); }
-#line 1280 "a.tab.c" /* yacc.c:1646  */
+#line 1275 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 63 "a.y" /* yacc.c:1646  */
+#line 60 "a.y" /* yacc.c:1646  */
     { printf("\tResultado: %f\n", (yyvsp[-1].decimal)); }
-#line 1286 "a.tab.c" /* yacc.c:1646  */
+#line 1281 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 64 "a.y" /* yacc.c:1646  */
+#line 61 "a.y" /* yacc.c:1646  */
     { printf("\tResultado: %s\n", (yyvsp[-1].cadena)); }
-#line 1292 "a.tab.c" /* yacc.c:1646  */
+#line 1287 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 65 "a.y" /* yacc.c:1646  */
+#line 62 "a.y" /* yacc.c:1646  */
     {
-	printf("\taaaalv\n");
-	if((yyvsp[-1].variable).tipo == "int"){
-	   printf("\t%d\n", (yyvsp[-1].variable).entero);
-	}else if((yyvsp[-1].variable).tipo == "double"){
-	   printf("\t%f\n", (yyvsp[-1].variable).db);
-	}else if((yyvsp[-1].variable).tipo == "string"){
-	   printf("\t%s\n", (yyvsp[-1].variable).cadena);
-	}
+        //printf("\t%s\t%s\n",$1.nombre,$1.tipo);
+        imprimirTablaSimbolos();
+        if((yyvsp[-1].variable).tipo == "int"){
+            printf("\t%d\n", (yyvsp[-1].variable).entero);
+        }else if((yyvsp[-1].variable).tipo == "double"){
+            printf("\t%f\n", (yyvsp[-1].variable).db);
+        }else if((yyvsp[-1].variable).tipo == "string"){
+            printf("\t%s\n", (yyvsp[-1].variable).cadena);
+        }
     }
-#line 1307 "a.tab.c" /* yacc.c:1646  */
+#line 1303 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 77 "a.y" /* yacc.c:1646  */
+#line 75 "a.y" /* yacc.c:1646  */
     { (yyval.entero) = (yyvsp[0].entero); }
-#line 1313 "a.tab.c" /* yacc.c:1646  */
+#line 1309 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 78 "a.y" /* yacc.c:1646  */
+#line 76 "a.y" /* yacc.c:1646  */
     { (yyval.entero) = -(yyvsp[0].entero); }
-#line 1319 "a.tab.c" /* yacc.c:1646  */
+#line 1315 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 79 "a.y" /* yacc.c:1646  */
+#line 77 "a.y" /* yacc.c:1646  */
     { (yyval.entero) = (yyvsp[-2].entero) + (yyvsp[0].entero); }
-#line 1325 "a.tab.c" /* yacc.c:1646  */
+#line 1321 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 80 "a.y" /* yacc.c:1646  */
+#line 78 "a.y" /* yacc.c:1646  */
     { (yyval.entero) = (yyvsp[-2].entero) - (yyvsp[0].entero); }
-#line 1331 "a.tab.c" /* yacc.c:1646  */
+#line 1327 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 81 "a.y" /* yacc.c:1646  */
+#line 79 "a.y" /* yacc.c:1646  */
     { (yyval.entero) = (yyvsp[-2].entero) * (yyvsp[0].entero); }
-#line 1337 "a.tab.c" /* yacc.c:1646  */
+#line 1333 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 82 "a.y" /* yacc.c:1646  */
+#line 80 "a.y" /* yacc.c:1646  */
     { (yyval.entero) = (yyvsp[-2].entero) / (yyvsp[0].entero); }
-#line 1343 "a.tab.c" /* yacc.c:1646  */
+#line 1339 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 85 "a.y" /* yacc.c:1646  */
+#line 83 "a.y" /* yacc.c:1646  */
     { (yyval.cadena) = (yyvsp[0].cadena); }
-#line 1349 "a.tab.c" /* yacc.c:1646  */
+#line 1345 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 86 "a.y" /* yacc.c:1646  */
+#line 84 "a.y" /* yacc.c:1646  */
     {
         int nuevaarrtam = arrtam((yyvsp[-2].cadena))+arrtam((yyvsp[0].cadena)) - 1;
         char* cad = concat((yyvsp[-2].cadena), (yyvsp[0].cadena), nuevaarrtam);
         (yyval.cadena) = cad;
     }
-#line 1359 "a.tab.c" /* yacc.c:1646  */
+#line 1355 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 91 "a.y" /* yacc.c:1646  */
+#line 89 "a.y" /* yacc.c:1646  */
     {
         int nuevaarrtam = 0;
         char* original = (yyvsp[-2].cadena);
@@ -1387,116 +1383,115 @@ yyreduce:
 	}
         (yyval.cadena) = cad;
     }
-#line 1391 "a.tab.c" /* yacc.c:1646  */
+#line 1387 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 120 "a.y" /* yacc.c:1646  */
+#line 118 "a.y" /* yacc.c:1646  */
     { (yyval.decimal) = (yyvsp[0].decimal); }
-#line 1397 "a.tab.c" /* yacc.c:1646  */
+#line 1393 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 121 "a.y" /* yacc.c:1646  */
+#line 119 "a.y" /* yacc.c:1646  */
     { (yyval.decimal) = -(yyvsp[0].decimal); }
-#line 1403 "a.tab.c" /* yacc.c:1646  */
+#line 1399 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 122 "a.y" /* yacc.c:1646  */
+#line 120 "a.y" /* yacc.c:1646  */
     { (yyval.decimal) = (yyvsp[-2].decimal) + (yyvsp[0].decimal); }
-#line 1409 "a.tab.c" /* yacc.c:1646  */
+#line 1405 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 123 "a.y" /* yacc.c:1646  */
+#line 121 "a.y" /* yacc.c:1646  */
     { (yyval.decimal) = (yyvsp[-2].decimal) - (yyvsp[0].decimal); }
-#line 1415 "a.tab.c" /* yacc.c:1646  */
+#line 1411 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 124 "a.y" /* yacc.c:1646  */
+#line 122 "a.y" /* yacc.c:1646  */
     { (yyval.decimal) = (yyvsp[-2].decimal) * (yyvsp[0].decimal); }
-#line 1421 "a.tab.c" /* yacc.c:1646  */
+#line 1417 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 125 "a.y" /* yacc.c:1646  */
+#line 123 "a.y" /* yacc.c:1646  */
     { (yyval.decimal) = (yyvsp[-2].decimal) / (yyvsp[0].decimal); }
-#line 1427 "a.tab.c" /* yacc.c:1646  */
+#line 1423 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 127 "a.y" /* yacc.c:1646  */
+#line 125 "a.y" /* yacc.c:1646  */
     { (yyval.decimal) = (yyvsp[-2].entero) + (yyvsp[0].decimal); }
-#line 1433 "a.tab.c" /* yacc.c:1646  */
+#line 1429 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 128 "a.y" /* yacc.c:1646  */
+#line 126 "a.y" /* yacc.c:1646  */
     { (yyval.decimal) = (yyvsp[-2].entero) - (yyvsp[0].decimal); }
-#line 1439 "a.tab.c" /* yacc.c:1646  */
+#line 1435 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 129 "a.y" /* yacc.c:1646  */
+#line 127 "a.y" /* yacc.c:1646  */
     { (yyval.decimal) = (yyvsp[-2].entero) * (yyvsp[0].decimal); }
-#line 1445 "a.tab.c" /* yacc.c:1646  */
+#line 1441 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 130 "a.y" /* yacc.c:1646  */
+#line 128 "a.y" /* yacc.c:1646  */
     { (yyval.decimal) = (yyvsp[-2].entero) / (yyvsp[0].decimal); }
-#line 1451 "a.tab.c" /* yacc.c:1646  */
+#line 1447 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 132 "a.y" /* yacc.c:1646  */
+#line 130 "a.y" /* yacc.c:1646  */
     { (yyval.decimal) = (yyvsp[-2].decimal) + (yyvsp[0].entero); }
-#line 1457 "a.tab.c" /* yacc.c:1646  */
+#line 1453 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 133 "a.y" /* yacc.c:1646  */
+#line 131 "a.y" /* yacc.c:1646  */
     { (yyval.decimal) = (yyvsp[-2].decimal) - (yyvsp[0].entero); }
-#line 1463 "a.tab.c" /* yacc.c:1646  */
+#line 1459 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 134 "a.y" /* yacc.c:1646  */
+#line 132 "a.y" /* yacc.c:1646  */
     { (yyval.decimal) = (yyvsp[-2].decimal) * (yyvsp[0].entero); }
-#line 1469 "a.tab.c" /* yacc.c:1646  */
+#line 1465 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 135 "a.y" /* yacc.c:1646  */
+#line 133 "a.y" /* yacc.c:1646  */
     { (yyval.decimal) = (yyvsp[-2].decimal) / (yyvsp[0].entero); }
-#line 1475 "a.tab.c" /* yacc.c:1646  */
+#line 1471 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 138 "a.y" /* yacc.c:1646  */
+#line 136 "a.y" /* yacc.c:1646  */
     { (yyval.variable) = (yyvsp[0].variable); }
-#line 1481 "a.tab.c" /* yacc.c:1646  */
+#line 1477 "a.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 139 "a.y" /* yacc.c:1646  */
+#line 137 "a.y" /* yacc.c:1646  */
     {
-        struct variable variable_;
-        variable_.tipo = "int";
-        variable_.entero = 0;
-        variable_.nombre = (yyvsp[-1].variable);
-        tabla_simbolos = (variable*)malloc(++tam_tabla*sizeof(variable))
-        tabla_simbolos[tam_tabla-1] = variable_;
+        struct variable* variable_ = malloc(sizeof(struct variable));
+        variable_->tipo = "int"; 
+        variable_->entero = 0;
+        variable_->nombre = (yyvsp[-1].variable).nombre;
 
-        imprimirTablaSimbolos();
+        tabla_simbolos = (struct variable*)realloc(tabla_simbolos,++tam_tabla*sizeof(struct variable));
+        tabla_simbolos[tam_tabla-1] = *variable_;
     }
-#line 1496 "a.tab.c" /* yacc.c:1646  */
+#line 1491 "a.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1500 "a.tab.c" /* yacc.c:1646  */
+#line 1495 "a.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1724,7 +1719,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 150 "a.y" /* yacc.c:1906  */
+#line 147 "a.y" /* yacc.c:1906  */
 
 
 int main(int argc, char **argv){
@@ -1781,11 +1776,14 @@ char* voltear(char* cadena, int tam){
 
     return volteada;
 }
+
  void imprimirTablaSimbolos(){
     int i;
+    struct variable var = {};
     for(i = 0; i<tam_tabla; i++){
-        struct variable var = {};
-        var = tabla_simbolos[i];
-        printf("\t\t%s\t:\t%d\n",var.nombre,var.entero);
+        var.nombre = tabla_simbolos[i].nombre;
+        var.tipo = tabla_simbolos[i].tipo;
+        var.entero = tabla_simbolos[i].entero;
+        printf("\t\t%s\t:\t%s\t:\t%d\n",var.nombre,var.tipo,var.entero);
     }
  }

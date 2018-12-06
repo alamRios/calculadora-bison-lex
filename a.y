@@ -5,17 +5,18 @@
 char* concat(char* cad1, char* cad2, int tam);
 char* voltear(char* cadena, int tam);
 int arrtam(char* cad);
-void imprimirTablaSimbolos();
 
 struct variable* tabla_simbolos;
 int tam_tabla;
+
+void imprimirTablaSimbolos();
 %}
 
 %union{
 	int entero;
 	double decimal;
 	char* cadena;
-	union {
+	struct variable{
 	   int entero;
 	   double db;
 	   char* cadena;
@@ -59,14 +60,15 @@ line: TK_LF
     | decimales TK_LF { printf("\tResultado: %f\n", $1); }
     | cadenas TK_LF { printf("\tResultado: %s\n", $1); }
     | variables TK_LF {
-	printf("\taaaalv\n");
-	if($1.tipo == "int"){
-	   printf("\t%d\n", $1.entero);
-	}else if($1.tipo == "double"){
-	   printf("\t%f\n", $1.db);
-	}else if($1.tipo == "string"){
-	   printf("\t%s\n", $1.cadena);
-	}
+        //printf("\t%s\t%s\n",$1.nombre,$1.tipo);
+        imprimirTablaSimbolos();
+        if($1.tipo == "int"){
+            printf("\t%d\n", $1.entero);
+        }else if($1.tipo == "double"){
+            printf("\t%f\n", $1.db);
+        }else if($1.tipo == "string"){
+            printf("\t%s\n", $1.cadena);
+        }
     }
     ;
 
@@ -132,15 +134,14 @@ decimales: TK_DECIMAL { $$ = $1; }
     ;
 
 variables: TK_VARIABLE { $$ = $1; }
-    | TK_T_ENT TK_VARIABLE TK_END_E {
-        struct variable variable_;
-        variable_.tipo = "int";
-        variable_.entero = 0;
-        variable_.nombre = $2;
-        tabla_simbolos = (variable*)malloc(++tam_tabla*sizeof(variable))
-        tabla_simbolos[tam_tabla-1] = variable_;
+    |   TK_T_ENT TK_VARIABLE TK_END_E {
+        struct variable* variable_ = malloc(sizeof(struct variable));
+        variable_->tipo = "int"; 
+        variable_->entero = 0;
+        variable_->nombre = $2.nombre;
 
-        imprimirTablaSimbolos();
+        tabla_simbolos = (struct variable*)realloc(tabla_simbolos,++tam_tabla*sizeof(struct variable));
+        tabla_simbolos[tam_tabla-1] = *variable_;
     }
     ;
 %%
@@ -199,11 +200,14 @@ char* voltear(char* cadena, int tam){
 
     return volteada;
 }
+
  void imprimirTablaSimbolos(){
     int i;
+    struct variable var = {};
     for(i = 0; i<tam_tabla; i++){
-        struct variable var = {};
-        var = tabla_simbolos[i];
-        printf("\t\t%s\t:\t%d\n",var.nombre,var.entero);
+        var.nombre = tabla_simbolos[i].nombre;
+        var.tipo = tabla_simbolos[i].tipo;
+        var.entero = tabla_simbolos[i].entero;
+        printf("\t\t%s\t:\t%s\t:\t%d\n",var.nombre,var.tipo,var.entero);
     }
  }
