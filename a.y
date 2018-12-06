@@ -8,6 +8,7 @@ int arrtam(char* cad);
 void calcsubs(char* b, int rlen, int lps[]);
 int compare(char *a, char *b);
 struct variable buscarEnTabla(char* nombre);
+struct variable* buscarEnTablaApuntador(char* nombre);
 
 struct variable* tabla_simbolos;
 int tam_tabla;
@@ -172,26 +173,6 @@ variables: TK_VARIABLE { $$ = $1; }
         tabla_simbolos[tam_tabla-1] = *variable_;
         $$ = *variable_;
     }
-    |   TK_T_DB TK_VARIABLE TK_END_E {
-        struct variable* variable_ = malloc(sizeof(struct variable));
-        variable_->tipo = "double"; 
-        variable_->db = 0;
-        variable_->nombre = $2.nombre;
-
-        tabla_simbolos = (struct variable*)realloc(tabla_simbolos,++tam_tabla*sizeof(struct variable));
-        tabla_simbolos[tam_tabla-1] = *variable_;
-        $$ = *variable_;
-    }
-    |   TK_T_STR TK_VARIABLE TK_END_E {
-        struct variable* variable_ = malloc(sizeof(struct variable));
-        variable_->tipo = "string"; 
-        variable_->cadena = "";
-        variable_->nombre = $2.nombre;
-
-        tabla_simbolos = (struct variable*)realloc(tabla_simbolos,++tam_tabla*sizeof(struct variable));
-        tabla_simbolos[tam_tabla-1] = *variable_;
-        $$ = *variable_;
-    }
     |   TK_T_ENT TK_VARIABLE OP_ASIGNA enteros TK_END_E {
         struct variable* variable_ = malloc(sizeof(struct variable));
         variable_->tipo = "int"; 
@@ -202,10 +183,40 @@ variables: TK_VARIABLE { $$ = $1; }
         tabla_simbolos[tam_tabla-1] = *variable_;
         $$ = *variable_;
     }
+    |   TK_VARIABLE OP_ASIGNA enteros TK_END_E {
+        struct variable* variable_ = buscarEnTablaApuntador($1.nombre);
+        variable_->entero = $3;
+        $$ = *variable_;
+    }
+    |   TK_T_DB TK_VARIABLE TK_END_E {
+        struct variable* variable_ = malloc(sizeof(struct variable));
+        variable_->tipo = "double"; 
+        variable_->db = 0;
+        variable_->nombre = $2.nombre;
+
+        tabla_simbolos = (struct variable*)realloc(tabla_simbolos,++tam_tabla*sizeof(struct variable));
+        tabla_simbolos[tam_tabla-1] = *variable_;
+        $$ = *variable_;
+    }
     |   TK_T_DB TK_VARIABLE OP_ASIGNA decimales TK_END_E {
         struct variable* variable_ = malloc(sizeof(struct variable));
         variable_->tipo = "int"; 
         variable_->entero = $4;
+        variable_->nombre = $2.nombre;
+
+        tabla_simbolos = (struct variable*)realloc(tabla_simbolos,++tam_tabla*sizeof(struct variable));
+        tabla_simbolos[tam_tabla-1] = *variable_;
+        $$ = *variable_;
+    }
+    |   TK_VARIABLE OP_ASIGNA decimales TK_END_E {
+        struct variable* variable_ = buscarEnTablaApuntador($1.nombre);
+        variable_->db = $3;
+        $$ = *variable_;
+    }
+    |   TK_T_STR TK_VARIABLE TK_END_E {
+        struct variable* variable_ = malloc(sizeof(struct variable));
+        variable_->tipo = "string"; 
+        variable_->cadena = "";
         variable_->nombre = $2.nombre;
 
         tabla_simbolos = (struct variable*)realloc(tabla_simbolos,++tam_tabla*sizeof(struct variable));
@@ -227,6 +238,18 @@ variables: TK_VARIABLE { $$ = $1; }
 
         tabla_simbolos = (struct variable*)realloc(tabla_simbolos,++tam_tabla*sizeof(struct variable));
         tabla_simbolos[tam_tabla-1] = *variable_;
+        $$ = *variable_;
+    }
+    |   TK_VARIABLE OP_ASIGNA cadenas TK_END_E {
+        struct variable* variable_ = buscarEnTablaApuntador($1.nombre);
+        int i = 0;
+        char* cadena = malloc(arrtam($3));
+        while($3[i]){
+            cadena[i] = $3[i];
+            i++;
+        }
+        cadena[i] = '\0';
+        variable_->cadena = cadena;
         $$ = *variable_;
     }
     ;
@@ -290,6 +313,7 @@ char* voltear(char* cadena, int tam){
  void imprimirTablaSimbolos(){
     int i;
     struct variable var = {};
+    printf("\t\t=========================================\n");
     for(i = 0; i<tam_tabla; i++){
         var = tabla_simbolos[i];
         if(var.tipo == "int")
@@ -299,6 +323,7 @@ char* voltear(char* cadena, int tam){
         else if(var.tipo == "string")
             printf("\t\t%s\t:\t%s\t:\t%s\n",var.nombre,var.tipo,var.cadena);
     }
+    printf("\t\t=========================================n");
  }
 
  int compare(char *a, char *b){
@@ -343,6 +368,20 @@ char* voltear(char* cadena, int tam){
             }
         }
      }
+ }
+
+  struct variable* buscarEnTablaApuntador(char* nombre){
+    int i;
+    struct variable var = {};
+    for(i = 0; i<tam_tabla; i++){
+        var = tabla_simbolos[i];
+        //printf("\t'%s'\n",var.nombre);
+        if(*var.nombre == *nombre){
+            return &tabla_simbolos[i];
+        }
+    }
+    struct variable v = {};
+    return &v;
  }
 
  struct variable buscarEnTabla(char* nombre){
