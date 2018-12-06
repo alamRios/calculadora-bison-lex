@@ -204,7 +204,6 @@ variables: TK_VARIABLE { $$ = $1; }
         variable_->tipo = "int"; 
         variable_->entero = $4;
         variable_->nombre = $2.nombre;
-
         tabla_simbolos = (struct variable*)realloc(tabla_simbolos,++tam_tabla*sizeof(struct variable));
         tabla_simbolos[tam_tabla-1] = *variable_;
         $$ = *variable_;
@@ -253,6 +252,60 @@ variables: TK_VARIABLE { $$ = $1; }
         variable_->cadena = cadena;
         $$ = *variable_;
     }
+    | TK_T_ENT TK_VARIABLE OP_ASIGNA variables TK_END_E{
+        struct variable* variable_ = malloc(sizeof(struct variable));
+        variable_->tipo = "int"; 
+        variable_->entero = $4.entero;
+        variable_->nombre = $2.nombre;
+
+        tabla_simbolos = (struct variable*)realloc(tabla_simbolos,++tam_tabla*sizeof(struct variable));
+        tabla_simbolos[tam_tabla-1] = *variable_;
+        $$ = *variable_;
+    }
+    | TK_T_DB TK_VARIABLE OP_ASIGNA variables TK_END_E{
+        struct variable* variable_ = malloc(sizeof(struct variable));
+        variable_->tipo = "double"; 
+        variable_->db = $4.db;
+        variable_->nombre = $2.nombre;
+
+        tabla_simbolos = (struct variable*)realloc(tabla_simbolos,++tam_tabla*sizeof(struct variable));
+        tabla_simbolos[tam_tabla-1] = *variable_;
+        $$ = *variable_;
+    }
+    | TK_T_STR TK_VARIABLE OP_ASIGNA variables TK_END_E{
+        struct variable* variable_ = malloc(sizeof(struct variable));
+        variable_->tipo = "string"; 
+        variable_->cadena = $4.cadena;
+        variable_->nombre = $2.nombre;
+
+        tabla_simbolos = (struct variable*)realloc(tabla_simbolos,++tam_tabla*sizeof(struct variable));
+        tabla_simbolos[tam_tabla-1] = *variable_;
+        $$ = *variable_;
+    }
+    | TK_VARIABLE OP_ASIGNA variables TK_END_E{
+        struct variable* var1 = buscarEnTablaApuntador($1.nombre);
+        struct variable var2 = buscarEnTabla($3.nombre);
+        if(var1->tipo == "int" && var2.tipo == "int"){;
+            var1->entero = var2.entero;
+            $$ = *var1;
+        }else if(var1->tipo == "double" && var2.tipo == "double"){;
+            var1->db = var2.db;
+            $$ = *var1;
+        }else if(var1->tipo == "string" && var2.tipo == "string"){;
+            var1->cadena = var2.cadena;
+            $$ = *var1;
+        }else if(var1->tipo == "int" && var2.tipo == "double"){
+            var1->db = var2.db;
+            var1->tipo = "double";
+            $$ = *var1;
+        }else if(var1->tipo == "double" && var2.tipo == "int"){
+            var1->db = var2.entero;
+            $$ = *var1;
+        }else{
+            char* error = "Tipos de variable incompatibles";
+            yyerror(error);
+        }
+    }
     | variables OP_SUMA variables{
         struct variable var1 = buscarEnTabla($1.nombre);
         struct variable var2 = buscarEnTabla($3.nombre);
@@ -284,6 +337,27 @@ variables: TK_VARIABLE { $$ = $1; }
             tabla_simbolos = (struct variable*)realloc(tabla_simbolos,++tam_tabla*sizeof(struct variable));
             tabla_simbolos[tam_tabla-1] = *variable_;
             $$ = *variable_;
+        }else if(var1.tipo == "int" && var2.tipo == "double"){
+            struct variable* variable_ = malloc(sizeof(struct variable));
+            variable_->tipo = "double"; 
+            variable_->entero = var1.entero + var2.db;
+            variable_->nombre = "temp_db";
+
+            tabla_simbolos = (struct variable*)realloc(tabla_simbolos,++tam_tabla*sizeof(struct variable));
+            tabla_simbolos[tam_tabla-1] = *variable_;
+            $$ = *variable_;
+        }else if(var1.tipo == "double" && var2.tipo == "int"){
+            struct variable* variable_ = malloc(sizeof(struct variable));
+            variable_->tipo = "double"; 
+            variable_->db = var1.db + var2.entero;
+            variable_->nombre = "temp_db";
+
+            tabla_simbolos = (struct variable*)realloc(tabla_simbolos,++tam_tabla*sizeof(struct variable));
+            tabla_simbolos[tam_tabla-1] = *variable_;
+            $$ = *variable_;
+        }else{
+            char* error = "Tipos de variable incompatibles";
+            yyerror(error);
         }
     }
     ;
