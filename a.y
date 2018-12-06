@@ -5,6 +5,8 @@
 char* concat(char* cad1, char* cad2, int tam);
 char* voltear(char* cadena, int tam);
 int arrtam(char* cad);
+void calcsubs(char* b, int rlen, int lps[]);
+int compare(char *a, char *b);
 
 struct variable* tabla_simbolos;
 int tam_tabla;
@@ -56,12 +58,13 @@ input:
     ;
 
 line: TK_LF
-    | enteros TK_LF { printf("\tResultado: %d\n", $1); }
-    | decimales TK_LF { printf("\tResultado: %f\n", $1); }
-    | cadenas TK_LF { printf("\tResultado: %s\n", $1); }
+    | enteros TK_LF { printf("\t%d\n", $1); }
+    | decimales TK_LF { printf("\t%f\n", $1); }
+    | cadenas TK_LF { printf("\t%s\n", $1); }
     | variables TK_LF {
         //printf("\t%s\t%s\n",$1.nombre,$1.tipo);
-        imprimirTablaSimbolos();
+        printf("\t%s\n",$1.nombre);
+        //struct variable var = buscarEnTabla($1.nombre);
         if($1.tipo == "int"){
             printf("\t%d\n", $1.entero);
         }else if($1.tipo == "double"){
@@ -85,6 +88,29 @@ cadenas: TK_CADENA { $$ = $1; }
         int nuevaarrtam = arrtam($1)+arrtam($3) - 1;
         char* cad = concat($1, $3, nuevaarrtam);
         $$ = cad;
+    }
+    | cadenas OP_RESTA cadenas {
+        int pi = ($1,$3);
+        char *res;
+        if(pi != -1){
+            int len = arrtam($1) - arrtam($3);
+            int i=0, j=0;
+            res = malloc(len);
+            while(i < len){
+                if(i != pi){
+                    res[i] = $1[j];
+                }else{
+                    j += arrtam($3);
+                    res[i] = $1[j];
+                }
+                i++;
+                j++;
+            }
+
+            $$ = res;
+        }else{
+            $$ = $1;
+        }
     }
     | cadenas OP_POT enteros {
         int nuevaarrtam = 0;
@@ -138,6 +164,40 @@ variables: TK_VARIABLE { $$ = $1; }
         struct variable* variable_ = malloc(sizeof(struct variable));
         variable_->tipo = "int"; 
         variable_->entero = 0;
+        variable_->nombre = $2.nombre;
+
+        tabla_simbolos = (struct variable*)realloc(tabla_simbolos,++tam_tabla*sizeof(struct variable));
+        tabla_simbolos[tam_tabla-1] = *variable_;
+    }
+    |   TK_T_DB TK_VARIABLE TK_END_E {
+        struct variable* variable_ = malloc(sizeof(struct variable));
+        variable_->tipo = "double"; 
+        variable_->db = 0;
+        variable_->nombre = $2.nombre;
+
+        tabla_simbolos = (struct variable*)realloc(tabla_simbolos,++tam_tabla*sizeof(struct variable));
+        tabla_simbolos[tam_tabla-1] = *variable_;
+    }
+    |   TK_T_STR TK_VARIABLE TK_END_E {
+        struct variable* variable_ = malloc(sizeof(struct variable));
+        variable_->tipo = "string"; 
+        variable_->cadena = "";
+        variable_->nombre = $2.nombre;
+
+        tabla_simbolos = (struct variable*)realloc(tabla_simbolos,++tam_tabla*sizeof(struct variable));
+        tabla_simbolos[tam_tabla-1] = *variable_;
+    }
+    |   TK_T_STR TK_VARIABLE OP_ASIGNA cadenas TK_END_E {
+        struct variable* variable_ = malloc(sizeof(struct variable));
+        variable_->tipo = "string"; 
+        int i = 0;
+        char* cadena = malloc(arrtam($4));
+        while($4[i]){
+            cadena[i] = $4[i];
+            i++;
+        }
+        cadena[i] = '\0';
+        variable_->cadena = cadena;
         variable_->nombre = $2.nombre;
 
         tabla_simbolos = (struct variable*)realloc(tabla_simbolos,++tam_tabla*sizeof(struct variable));
@@ -205,9 +265,56 @@ char* voltear(char* cadena, int tam){
     int i;
     struct variable var = {};
     for(i = 0; i<tam_tabla; i++){
-        var.nombre = tabla_simbolos[i].nombre;
-        var.tipo = tabla_simbolos[i].tipo;
-        var.entero = tabla_simbolos[i].entero;
-        printf("\t\t%s\t:\t%s\t:\t%d\n",var.nombre,var.tipo,var.entero);
+        var = tabla_simbolos[i];
+        if(var.tipo == "int")
+            printf("\t\t%s\t:\t%s\t:\t%d\n",var.nombre,var.tipo,var.entero);
+        else if(var.tipo == "double")
+            printf("\t\t%s\t:\t%s\t:\t%d\n",var.nombre,var.tipo,var.db);
+        else if(var.tipo == "string")
+            printf("\t\t%s\t:\t%s\t:\t%s\n",var.nombre,var.tipo,var.cadena);
     }
+ }
+
+ int compare(char *a, char *b){
+     int rlen = arrtam(b);
+     int olen = arrtam(a);
+
+     int lps[rlen];
+     int j = 0; 
+
+     calcsubs(b,rlen,lps);
+
+     int i = 0; 
+     while(i == olen){
+         if(b[j] == a[i]){
+             i++;j++;
+         }
+         if(j == rlen){
+             return (i-j);
+         }else if( i < olen && b[j] != a[i]){
+             if(j != 0){
+                 j = lps[j-1];
+             }else{
+                 i++;
+             }
+         }
+     }
+     return -1;
+ }
+
+ void calcsubs(char* b, int rlen, int lps[]){
+     int len = 0; 
+     int i = 1; 
+     lps[0] = 0; 
+     while(i < rlen){
+        if(b[i] == b[len]){
+            lps[i++] = ++len;
+        }else{
+            if(len != 0){
+                len = lps[len - 1];
+            }else{
+                lps[i++] = len;
+            }
+        }
+     }
  }
