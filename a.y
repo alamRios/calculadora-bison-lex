@@ -64,6 +64,7 @@ line: TK_LF
     | decimales TK_LF { printf("\t%f\n", $1); }
     | cadenas TK_LF { printf("\t%s\n", $1); }
     | variables TK_LF {
+        //limpiarTemporales();
         //imprimirTablaSimbolos();
         struct variable var = buscarEnTabla($1.nombre);
         if(var.tipo == "int"){
@@ -252,6 +253,39 @@ variables: TK_VARIABLE { $$ = $1; }
         variable_->cadena = cadena;
         $$ = *variable_;
     }
+    | variables OP_SUMA variables{
+        struct variable var1 = buscarEnTabla($1.nombre);
+        struct variable var2 = buscarEnTabla($3.nombre);
+        if(var1.tipo == "int" && var2.tipo == "int"){
+            struct variable* variable_ = malloc(sizeof(struct variable));
+            variable_->tipo = "int"; 
+            variable_->entero = var1.entero + var2.entero;
+            variable_->nombre = "temp_entero";
+
+            tabla_simbolos = (struct variable*)realloc(tabla_simbolos,++tam_tabla*sizeof(struct variable));
+            tabla_simbolos[tam_tabla-1] = *variable_;
+            $$ = *variable_;
+        }else if(var1.tipo == "double" && var2.tipo == "double"){
+            struct variable* variable_ = malloc(sizeof(struct variable));
+            variable_->tipo = "double"; 
+            variable_->db = var1.db + var2.db;
+            variable_->nombre = "temp_db";
+
+            tabla_simbolos = (struct variable*)realloc(tabla_simbolos,++tam_tabla*sizeof(struct variable));
+            tabla_simbolos[tam_tabla-1] = *variable_;
+            $$ = *variable_;
+        }else if(var1.tipo == "string" && var2.tipo == "string"){
+            struct variable* variable_ = malloc(sizeof(struct variable));
+            variable_->tipo = "string"; 
+            int lont = arrtam(var1.cadena)+arrtam(var2.cadena);
+            variable_->cadena = concat(var1.cadena,var2.cadena,lont);
+            variable_->nombre = "temp_string";
+
+            tabla_simbolos = (struct variable*)realloc(tabla_simbolos,++tam_tabla*sizeof(struct variable));
+            tabla_simbolos[tam_tabla-1] = *variable_;
+            $$ = *variable_;
+        }
+    }
     ;
 %%
 
@@ -265,7 +299,8 @@ int yywrap() {
 }
 
 void yyerror(const char *s){
-	printf("Error: %s\n", s);
+	printf("\tError: %s\n", s);
+    yyparse();
 }
 
 int arrtam(char* cad){
@@ -387,13 +422,13 @@ char* voltear(char* cadena, int tam){
  struct variable buscarEnTabla(char* nombre){
     int i;
     struct variable var = {};
+    struct variable res = {};
     for(i = 0; i<tam_tabla; i++){
         var = tabla_simbolos[i];
         //printf("\t'%s'\n",var.nombre);
         if(*var.nombre == *nombre){
-            return var;
+            res = var;
         }
     }
-    struct variable v = {};
-    return v;
+    return res;
  }
