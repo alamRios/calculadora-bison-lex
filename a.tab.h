@@ -68,20 +68,14 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 13 "a.y" /* yacc.c:1909  */
+#line 24 "a.y" /* yacc.c:1909  */
 
 	int entero;
 	double decimal;
 	char* cadena;
-	union {
-	   int entero;
-	   double db;
-	   char* cadena;
-	   char* nombre;
-	   char* tipo; 
-	} variable;
+    variab variable;
 
-#line 85 "a.tab.h" /* yacc.c:1909  */
+#line 79 "a.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

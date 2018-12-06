@@ -5,10 +5,10 @@
 char* concat(char* cad1, char* cad2, int tam);
 char* voltear(char* cadena, int tam);
 int arrtam(char* cad);
+void imprimirTablaSimbolos();
 
 struct variable* tabla_simbolos;
 int tam_tabla;
-int ele_tabla;
 %}
 
 %union{
@@ -133,7 +133,14 @@ decimales: TK_DECIMAL { $$ = $1; }
 
 variables: TK_VARIABLE { $$ = $1; }
     | TK_T_ENT TK_VARIABLE TK_END_E {
-        
+        struct variable variable_;
+        variable_.tipo = "int";
+        variable_.entero = 0;
+        variable_.nombre = $2;
+        tabla_simbolos = (variable*)malloc(++tam_tabla*sizeof(variable))
+        tabla_simbolos[tam_tabla-1] = variable_;
+
+        imprimirTablaSimbolos();
     }
     ;
 %%
@@ -192,3 +199,11 @@ char* voltear(char* cadena, int tam){
 
     return volteada;
 }
+ void imprimirTablaSimbolos(){
+    int i;
+    for(i = 0; i<tam_tabla; i++){
+        struct variable var = {};
+        var = tabla_simbolos[i];
+        printf("\t\t%s\t:\t%d\n",var.nombre,var.entero);
+    }
+ }
